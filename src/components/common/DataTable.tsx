@@ -1,32 +1,22 @@
-import { ReactNode, Dispatch, SetStateAction } from 'react';
+import { ReactNode } from 'react';
 import classNames from 'classnames';
-import { Banner, Loading, SearchField } from 'react-basics';
-import { useMessages } from 'components/hooks';
+import { Loading, SearchField } from 'react-basics';
+import { useMessages, useNavigation } from 'components/hooks';
 import Empty from 'components/common/Empty';
 import Pager from 'components/common/Pager';
+import { PagedQueryResult } from 'lib/types';
 import styles from './DataTable.module.css';
+import { LoadingPanel } from 'components/common/LoadingPanel';
 
 const DEFAULT_SEARCH_DELAY = 600;
 
 export interface DataTableProps {
-  queryResult: {
-    result: {
-      page: number;
-      pageSize: number;
-      count: number;
-      data: any[];
-    };
-    params: {
-      query: string;
-      page: number;
-    };
-    setParams: Dispatch<SetStateAction<{ query: string; page: number }>>;
-    isLoading: boolean;
-    error: unknown;
-  };
+  queryResult: PagedQueryResult<any>;
   searchDelay?: number;
   allowSearch?: boolean;
   allowPaging?: boolean;
+  autoFocus?: boolean;
+  renderEmpty?: () => ReactNode;
   children: ReactNode | ((data: any) => ReactNode);
 }
 
@@ -35,26 +25,31 @@ export function DataTable({
   searchDelay = 600,
   allowSearch = true,
   allowPaging = true,
+  autoFocus = true,
+  renderEmpty,
   children,
 }: DataTableProps) {
   const { formatMessage, labels, messages } = useMessages();
-  const { result, error, isLoading, params, setParams } = queryResult || {};
+  const {
+    result,
+    params,
+    setParams,
+    query: { error, isLoading, isFetched },
+  } = queryResult || {};
   const { page, pageSize, count, data } = result || {};
   const { query } = params || {};
   const hasData = Boolean(!isLoading && data?.length);
-  const noResults = Boolean(!isLoading && query && !hasData);
+  const noResults = Boolean(query && !hasData);
+  const { router, renderUrl } = useNavigation();
 
-  const handleSearch = query => {
+  const handleSearch = (query: string) => {
     setParams({ ...params, query, page: params.page ? page : 1 });
   };
 
-  const handlePageChange = page => {
+  const handlePageChange = (page: number) => {
     setParams({ ...params, query, page });
+    router.push(renderUrl({ page }));
   };
-
-  if (error) {
-    return <Banner variant="error">{formatMessage(messages.error)}</Banner>;
-  }
 
   return (
     <>
@@ -62,29 +57,33 @@ export function DataTable({
         <SearchField
           className={styles.search}
           value={query}
-          onChange={handleSearch}
+          onSearch={handleSearch}
           delay={searchDelay || DEFAULT_SEARCH_DELAY}
-          autoFocus={true}
+          autoFocus={autoFocus}
           placeholder={formatMessage(labels.search)}
         />
       )}
-      <div
-        className={classNames(styles.body, { [styles.status]: isLoading || noResults || !hasData })}
-      >
-        {hasData ? (typeof children === 'function' ? children(result) : children) : null}
-        {isLoading && <Loading icon="dots" />}
-        {!isLoading && !hasData && !query && <Empty />}
-        {noResults && <Empty message={formatMessage(messages.noResultsFound)} />}
-      </div>
-      {allowPaging && hasData && (
-        <Pager
-          className={styles.pager}
-          page={page}
-          pageSize={pageSize}
-          count={count}
-          onPageChange={handlePageChange}
-        />
-      )}
+      <LoadingPanel data={data} isLoading={isLoading} isFetched={isFetched} error={error}>
+        <div
+          className={classNames(styles.body, {
+            [styles.status]: isLoading || noResults || !hasData,
+          })}
+        >
+          {hasData ? (typeof children === 'function' ? children(result) : children) : null}
+          {isLoading && <Loading position="page" />}
+          {!isLoading && !hasData && !query && (renderEmpty ? renderEmpty() : <Empty />)}
+          {!isLoading && noResults && <Empty message={formatMessage(messages.noResultsFound)} />}
+        </div>
+        {allowPaging && hasData && (
+          <Pager
+            className={styles.pager}
+            page={page}
+            pageSize={pageSize}
+            count={count}
+            onPageChange={handlePageChange}
+          />
+        )}
+      </LoadingPanel>
     </>
   );
 }

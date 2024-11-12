@@ -2,7 +2,7 @@
 import { ReactNode } from 'react';
 import classNames from 'classnames';
 import { Banner, Loading } from 'react-basics';
-import useMessages from 'components/hooks/useMessages';
+import { useMessages } from 'components/hooks';
 import styles from './Page.module.css';
 
 export function Page({
@@ -23,7 +23,7 @@ export function Page({
   }
 
   if (isLoading) {
-    return <Loading icon="spinner" size="xl" position="page" />;
+    return <Loading position="page" />;
   }
 
   return <div className={classNames(styles.page, className)}>{children}</div>;

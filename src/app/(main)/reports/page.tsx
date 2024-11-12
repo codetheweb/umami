@@ -1,14 +1,10 @@
-import ReportsHeader from './ReportsHeader';
-import ReportsDataTable from './ReportsDataTable';
+import ReportsPage from './ReportsPage';
+import { Metadata } from 'next';
 
-export default function ReportsPage() {
-  return (
-    <>
-      <ReportsHeader />
-      <ReportsDataTable />
-    </>
-  );
+export default function () {
+  return <ReportsPage />;
 }
-export const metadata = {
-  title: 'Reports | umami',
+
+export const metadata: Metadata = {
+  title: 'Reports',
 };

@@ -1,16 +1,10 @@
-import WebsitesDataTable from './WebsitesDataTable';
-import WebsitesHeader from './WebsitesHeader';
 import { Metadata } from 'next';
+import WebsitesSettingsPage from './WebsitesSettingsPage';
 
-export default function () {
-  return (
-    <>
-      <WebsitesHeader />
-      <WebsitesDataTable />
-    </>
-  );
+export default function ({ params: { teamId } }: { params: { teamId: string } }) {
+  return <WebsitesSettingsPage teamId={teamId} />;
 }
 
 export const metadata: Metadata = {
-  title: 'Websites Settings | umami',
+  title: 'Websites',
 };

@@ -1,6 +1,6 @@
 import classNames from 'classnames';
+import { useMessages } from 'components/hooks';
 import styles from './Empty.module.css';
-import useMessages from 'components/hooks/useMessages';
 
 export interface EmptyProps {
   message?: string;

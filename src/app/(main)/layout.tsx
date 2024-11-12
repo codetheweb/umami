@@ -1,11 +1,16 @@
-import Shell from './Shell';
+import { Metadata } from 'next';
+import App from './App';
 import NavBar from './NavBar';
 import Page from 'components/layout/Page';
 import styles from './layout.module.css';
 
-export default function AppLayout({ children }) {
+export default function ({ children }) {
+  if (process.env.DISABLE_UI) {
+    return null;
+  }
+
   return (
-    <Shell>
+    <App>
       <main className={styles.layout}>
         <nav className={styles.nav}>
           <NavBar />
@@ -14,6 +19,13 @@ export default function AppLayout({ children }) {
           <Page>{children}</Page>
         </section>
       </main>
-    </Shell>
+    </App>
   );
 }
+
+export const metadata: Metadata = {
+  title: {
+    template: '%s | Umami',
+    default: 'Umami',
+  },
+};

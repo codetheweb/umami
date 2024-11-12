@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    "target": "es2021",
     "outDir": "./build",
     "module": "esnext",
     "moduleResolution": "node",
@@ -23,6 +23,7 @@
     "incremental": false,
     "baseUrl": "./src",
     "paths": {
+      "react": ["./node_modules/@types/react"],
       "assets/*": ["./assets/*"],
       "components/*": ["./components/*"],
       "lib/*": ["./lib/*"],
@@ -38,5 +39,5 @@
     ]
   },
   "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "next-env.d.ts", ".next/types/**/*.ts"],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "./cypress.config.ts", "cypress"]
 }
